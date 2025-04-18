@@ -1,1 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Capitals Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .pulse-animation {
+            animation: pulse 1.5s infinite;
+        }
+        .option:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .correct {
+            background-color: #4CAF50 !important;
+            color: white !important;
+        }
+        .incorrect {
+            background-color: #F44336 !important;
+            color: white !important;
+        }
+        .progress-bar {
+            transition: width 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-purple-800 mb-2">World Capitals Quiz</h1>
+            <p class="text-gray-600">Test your knowledge of countries and their capitals!</p>
+        </header>
 
+        <!-- Game Area -->
+        <div id="game-area" class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <!-- Start Screen -->
+            <div id="start-screen" class="p-8 text-center">
+                <div class="mb-6">
+                    <i class="fas fa-globe-europe text-6xl text-purple-600 mb-4"></i>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Ready to Play?</h2>
+                    <p class="text-gray-600 mb-6">Answer 10 questions about world capitals and countries.</p>
+                </div>
+                <button id="start-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-full text-lg transition-all duration-300 transform hover:scale-105">
+                    Start Quiz <i class="fas fa-play ml-2"></i>
+                </button>
+            </div>
+
+            <!-- Quiz Screen -->
+            <div id="quiz-screen" class="hidden p-6">
+                <!-- Progress Bar -->
+                <div class="mb-6">
+                    <div class="flex justify-between mb-1">
+                        <span id="question-count" class="text-sm font-medium text-purple-700">Question 1/10</span>
+                        <span id="timer" class="text-sm font-medium text-gray-500">Time: 20s</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div id="progress-bar" class="bg-purple-600 h-2.5 rounded-full progress-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Question -->
+                <div id="question-container" class="mb-8">
+                    <h2 id="question" class="text-xl font-semibold text-gray-800 mb-4"></h2>
+                </div>
+
+                <!-- Options -->
+                <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <!-- Options will be inserted here by JavaScript -->
+                </div>
+
+                <!-- Next Button -->
+                <div class="text-center mt-6">
+                    <button id="next-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-full text-lg hidden transition-all duration-300 transform hover:scale-105">
+                        Next Question <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results Screen -->
+            <div id="results-screen" class="hidden p-8 text-center">
+                <div class="mb-6">
+                    <i class="fas fa-trophy text-6xl text-yellow-500 mb-4"></i>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Quiz Completed!</h2>
+                    <p id="score-text" class="text-4xl font-bold text-purple-600 mb-4">You scored 8/10</p>
+                    <p id="message" class="text-gray-600 mb-6">Great job! You know your world capitals well.</p>
+                </div>
+                <div class="flex justify-center space-x-4">
+                    <button id="restart-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-full transition-all duration-300 transform hover:scale-105">
+                        Play Again <i class="fas fa-redo ml-2"></i>
+                    </button>
+                    <button id="share-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-full transition-all duration-300 transform hover:scale-105">
+                        Share <i class="fas fa-share-alt ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Quiz questions - country and capital pairs
+        const questions = [
+            {
+                question: "What is the capital of France?",
+                options: ["Berlin", "Madrid", "Paris", "Rome"],
+                answer: "Paris"
+            },
+            {
+                question: "Which country's capital is Tokyo?",
+                options: ["China", "Japan", "South Korea", "Thailand"],
+                answer: "Japan"
+            },
+            {
+                question: "What is the capital of Canada?",
+                options: ["Toronto", "Ottawa", "Vancouver", "Montreal"],
+                answer: "Ottawa"
+            },
+            {
+                question: "Which country's capital is Cairo?",
+                options: ["Morocco", "Algeria", "Egypt", "Tunisia"],
+                answer: "Egypt"
+            },
+            {
+                question: "What is the capital of Brazil?",
+                options: ["Rio de Janeiro", "São Paulo", "Brasília", "Buenos Aires"],
+                answer: "Brasília"
+            },
+            {
+                question: "Which country's capital is Moscow?",
+                options: ["Ukraine", "Belarus", "Russia", "Kazakhstan"],
+                answer: "Russia"
+            },
+            {
+                question: "What is the capital of Australia?",
+                options: ["Sydney", "Melbourne", "Canberra", "Perth"],
+                answer: "Canberra"
+            },
+            {
+                question: "Which country's capital is Madrid?",
+                options: ["Portugal", "Spain", "France", "Italy"],
+                answer: "Spain"
+            },
+            {
+                question: "What is the capital of South Africa?",
+                options: ["Cape Town", "Pretoria", "Johannesburg", "Durban"],
+                answer: "Pretoria"
+            },
+            {
+                question: "Which country's capital is Ankara?",
+                options: ["Greece", "Turkey", "Syria", "Lebanon"],
+                answer: "Turkey"
+            }
+        ];
+
+        // DOM elements
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultsScreen = document.getElementById('results-screen');
+        const startBtn = document.getElementById('start-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const shareBtn = document.getElementById('share-btn');
+        const questionElement = document.getElementById('question');
+        const optionsContainer = document.getElementById('options-container');
+        const questionCountElement = document.getElementById('question-count');
+        const progressBar = document.getElementById('progress-bar');
+        const timerElement = document.getElementById('timer');
+        const scoreTextElement = document.getElementById('score-text');
+        const messageElement = document.getElementById('message');
+
+        // Quiz variables
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timer;
+        let timeLeft = 20;
+        let quizCompleted = false;
+
+        // Start the quiz
+        startBtn.addEventListener('click', startQuiz);
+        restartBtn.addEventListener('click', startQuiz);
+        
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            quizCompleted = false;
+            
+            startScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            resultsScreen.classList.add('hidden');
+            
+            showQuestion();
+        }
+
+        // Display the current question
+        function showQuestion() {
+            resetState();
+            const currentQuestion = questions[currentQuestionIndex];
+            questionElement.textContent = currentQuestion.question;
+            
+            // Update question counter
+            questionCountElement.textContent = `Question ${currentQuestionIndex + 1}/${questions.length}`;
+            
+            // Update progress bar
+            const progressPercentage = (currentQuestionIndex / questions.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+            
+            // Create options
+            currentQuestion.options.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.classList.add('option', 'bg-gray-100', 'hover:bg-gray-200', 'text-gray-800', 'font-medium', 'py-4', 'px-4', 'rounded-lg', 'text-left', 'transition-all', 'duration-300', 'shadow-md');
+                button.addEventListener('click', () => selectAnswer(option));
+                optionsContainer.appendChild(button);
+            });
+            
+            // Start timer
+            startTimer();
+        }
+
+        // Reset the quiz state for next question
+        function resetState() {
+            nextBtn.classList.add('hidden');
+            while (optionsContainer.firstChild) {
+                optionsContainer.removeChild(optionsContainer.firstChild);
+            }
+            clearInterval(timer);
+            timeLeft = 20;
+            timerElement.textContent = `Time: ${timeLeft}s`;
+        }
+
+        // Start the timer for the current question
+        function startTimer() {
+            timer = setInterval(() => {
+                timeLeft--;
+                timerElement.textContent = `Time: ${timeLeft}s`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    timeUp();
+                }
+            }, 1000);
+        }
+
+        // Handle when time runs out
+        function timeUp() {
+            const currentQuestion = questions[currentQuestionIndex];
+            const options = optionsContainer.querySelectorAll('button');
+            
+            options.forEach(option => {
+                option.disabled = true;
+                if (option.textContent === currentQuestion.answer) {
+                    option.classList.add('correct');
+                }
+            });
+            
+            nextBtn.classList.remove('hidden');
+        }
+
+        // Handle answer selection
+        function selectAnswer(selectedOption) {
+            clearInterval(timer);
+            const currentQuestion = questions[currentQuestionIndex];
+            const options = optionsContainer.querySelectorAll('button');
+            let isCorrect = false;
+            
+            options.forEach(option => {
+                option.disabled = true;
+                
+                if (option.textContent === currentQuestion.answer) {
+                    option.classList.add('correct');
+                }
+                
+                if (option.textContent === selectedOption && selectedOption === currentQuestion.answer) {
+                    isCorrect = true;
+                    option.classList.add('correct');
+                    score++;
+                } else if (option.textContent === selectedOption && selectedOption !== currentQuestion.answer) {
+                    option.classList.add('incorrect');
+                }
+            });
+            
+            nextBtn.classList.remove('hidden');
+        }
+
+        // Move to next question or show results
+        nextBtn.addEventListener('click', () => {
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex < questions.length) {
+                showQuestion();
+            } else {
+                showResults();
+            }
+        });
+
+        // Display the quiz results
+        function showResults() {
+            quizScreen.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+            
+            scoreTextElement.textContent = `You scored ${score}/${questions.length}`;
+            
+            // Custom message based on score
+            if (score === questions.length) {
+                messageElement.textContent = "Perfect! You're a geography expert!";
+            } else if (score >= questions.length * 0.8) {
+                messageElement.textContent = "Excellent! You know your world capitals very well!";
+            } else if (score >= questions.length * 0.6) {
+                messageElement.textContent = "Good job! You have solid geography knowledge.";
+            } else if (score >= questions.length * 0.4) {
+                messageElement.textContent = "Not bad! Keep learning about world capitals.";
+            } else {
+                messageElement.textContent = "Keep practicing! You'll improve with time.";
+            }
+            
+            quizCompleted = true;
+        }
+
+        // Share results
+        shareBtn.addEventListener('click', () => {
+            const shareText = `I scored ${score}/${questions.length} on the World Capitals Quiz! Can you beat my score?`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'World Capitals Quiz',
+                    text: shareText,
+                    url: window.location.href
+                }).catch(err => {
+                    console.log('Error sharing:', err);
+                    fallbackShare(shareText);
+                });
+            } else {
+                fallbackShare(shareText);
+            }
+        });
+
+        function fallbackShare(shareText) {
+            // Copy to clipboard as fallback
+            navigator.clipboard.writeText(shareText).then(() => {
+                alert('Results copied to clipboard!');
+            }).catch(err => {
+                console.log('Could not copy text: ', err);
+                prompt('Copy this text to share:', shareText);
+            });
+        }
+    </script>
+</body>
+</html>
